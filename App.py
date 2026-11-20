@@ -1,3 +1,5 @@
+import base64
+from pathlib import Path
 import streamlit as st
 
 # 1. إعدادات الصفحة الأساسية
@@ -15,98 +17,86 @@ st.markdown("""
 html, body, [class*="css"] {
     font-family: 'Cairo', sans-serif !important;
     direction: rtl;
-    text-align: right;
 }
 
-/* خلفية التطبيق العامة */
 .stApp {
     background-color: #f8f6f0;
 }
 
-/* تصميم الهيدر العلوي */
-.aqaba-header {
-    background: linear-gradient(135deg, #0b2239 0%, #163a5f 100%);
-    padding: 28px 20px;
-    border-radius: 18px;
-    border-bottom: 4px solid #d4af37;
-    text-align: center;
-    box-shadow: 0 6px 18px rgba(11, 34, 57, 0.15);
-    margin-bottom: 24px;
+.block-container {
+    padding-top: 1.2rem !important;
+    padding-bottom: 2rem !important;
+    max-width: 720px !important;
 }
 
-.aqaba-tagline {
-    color: #e6c667;
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 4px;
+/* إبقاء 3 أعمدة متجاورة حتى على شاشة الجوال */
+div[data-testid="stHorizontalBlock"] {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
 }
 
-.aqaba-title {
-    color: #ffffff;
-    font-size: 34px;
-    font-weight: 800;
-    margin: 0;
-    letter-spacing: 0.5px;
+div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+    flex: 1 1 0% !important;
+    min-width: 0 !important;
+    width: auto !important;
 }
 
-.aqaba-subtitle {
-    display: inline-block;
-    background-color: #091a2c;
-    color: #f3d27a;
-    border: 1px solid #d4af37;
-    padding: 6px 22px;
-    border-radius: 50px;
-    font-size: 15px;
-    font-weight: 600;
-    margin-top: 10px;
-}
-
-/* تصميم بطاقات الأقسام */
+/* بطاقة قسم مدمجة */
 .category-card {
     background-color: #ffffff;
-    border: 1.5px solid #d4af37;
-    border-radius: 16px;
-    padding: 18px 10px 12px 10px;
+    border: 1.2px solid #d4af37;
+    border-radius: 12px;
+    padding: 10px 4px 8px 4px;
     text-align: center;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
     margin-bottom: 6px;
+    min-height: 92px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .category-icon {
-    font-size: 34px;
-    margin-bottom: 6px;
+    font-size: 22px;
+    line-height: 1.2;
+    margin-bottom: 4px;
 }
 
 .category-name {
-    color: #0b2239;
-    font-size: 16px;
+    color: #0b2239 !important;
+    font-size: 11.5px;
     font-weight: 700;
-    margin-bottom: 6px;
+    line-height: 1.25;
 }
 
 .gold-divider {
     height: 2px;
     width: 55%;
     background: linear-gradient(90deg, transparent, #d4af37, transparent);
-    margin: 6px auto 0 auto;
+    margin: 5px auto 0 auto;
 }
 
-/* تخصيص أزرار الاختيار أسفل كل بطاقة */
+/* زر اختيار واضح وممتد */
 div.stButton > button {
-    width: 100%;
-    background-color: #0b2239;
-    color: #f3d27a;
-    border: 1px solid #d4af37;
-    border-radius: 10px;
-    font-weight: 700;
-    padding: 6px 0;
+    width: 100% !important;
+    background-color: #0b2239 !important;
+    color: #f3d27a !important;
+    border: 1px solid #d4af37 !important;
+    border-radius: 8px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    padding: 4px 6px !important;
+    min-height: 30px !important;
     transition: 0.2s;
 }
 
 div.stButton > button:hover {
-    background-color: #d4af37;
-    color: #0b2239;
-    border-color: #0b2239;
+    background-color: #d4af37 !important;
+    color: #0b2239 !important;
+    border-color: #0b2239 !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -115,23 +105,40 @@ div.stButton > button:hover {
 if "selected_category" not in st.session_state:
     st.session_state.selected_category = "الكل"
 
-# 4. عرض الهيدر العلوي
-st.markdown("""
-<div class="aqaba-header">
-    <div class="aqaba-tagline">إبحث .. إكتشف .. إمتلك</div>
-    <h1 class="aqaba-title">🏛️ عقارات العقبة</h1>
-    <div class="aqaba-subtitle">لخدمات وبيع العقارات</div>
-</div>
-""", unsafe_allow_html=True)
+# 4. تحميل وعرض صورة البانر من المستودع
+def load_image_base64(image_path: str) -> str | None:
+    p = Path(image_path)
+    if not p.exists():
+        return None
+    return base64.b64encode(p.read_bytes()).decode("utf-8")
+
+img_b64 = load_image_base64("banner.jpg")
+
+if img_b64:
+    st.markdown(f"""
+    <div style="
+        border-radius: 14px;
+        overflow: hidden;
+        border: 2px solid #d4af37;
+        box-shadow: 0 4px 14px rgba(11, 34, 57, 0.15);
+        margin-bottom: 14px;
+    ">
+        <img src="data:image/jpeg;base64,{img_b64}"
+             style="width: 100%; height: auto; display: block;"
+             alt="عقارات العقبة" />
+    </div>
+    """, unsafe_allow_html=True)
+else:
+    st.warning("لم يتم العثور على banner.jpg في المجلد الرئيسي للمستودع.")
 
 # 5. بيانات البطاقات الستة (نفس ترتيب الصورة)
 categories = [
     {"id": "أرض للبيع", "icon": "🌱", "title": "أرض للبيع"},
     {"id": "شقق للبيع", "icon": "🏢", "title": "شقق للبيع"},
-    {"id": "محلات تجارية للبيع", "icon": "🏪", "title": "محلات تجارية للبيع"},
+    {"id": "محلات تجارية للبيع", "icon": "🏪", "title": "محلات للبيع"},
     {"id": "إضافة إعلان", "icon": "📢", "title": "إضافة إعلان"},
     {"id": "شقق للإيجار", "icon": "🏘️", "title": "شقق للإيجار"},
-    {"id": "محلات تجارية للإيجار", "icon": "🔑", "title": "محلات تجارية للإيجار"},
+    {"id": "محلات تجارية للإيجار", "icon": "🔑", "title": "محلات للإيجار"},
 ]
 
 # 6. رسم الشبكة (صفين × 3 أعمدة)
@@ -147,7 +154,7 @@ for row_start in range(0, len(categories), 3):
                 <div class="gold-divider"></div>
             </div>
             """, unsafe_allow_html=True)
-            
+
             if st.button("اختيار ❮", key=f"btn_{item['id']}"):
                 st.session_state.selected_category = item["id"]
 
