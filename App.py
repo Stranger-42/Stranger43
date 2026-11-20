@@ -9,7 +9,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# 2. تنسيق CSS للهوية الكحلية والذهبية ودعم اللغة العربية (RTL)
+# 2. تنسيق CSS متجاوب 100% لشاشة الجوال بدون تمرير أفقي
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
@@ -17,42 +17,50 @@ st.markdown("""
 html, body, [class*="css"] {
     font-family: 'Cairo', sans-serif !important;
     direction: rtl;
+    overflow-x: hidden !important;
 }
 
 .stApp {
     background-color: #f8f6f0;
+    overflow-x: hidden !important;
 }
 
+/* مساحة علوية كافية حتى لا يغطي شريط Streamlit أعلى البانر */
 .block-container {
-    padding-top: 1.2rem !important;
+    padding-top: 3.2rem !important;
     padding-bottom: 2rem !important;
-    max-width: 720px !important;
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+    max-width: 100% !important;
 }
 
-/* إبقاء 3 أعمدة متجاورة حتى على شاشة الجوال */
+/* إبقاء 3 أعمدة متساوية داخل عرض الشاشة بالضبط */
 div[data-testid="stHorizontalBlock"] {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
-    gap: 8px !important;
+    gap: 6px !important;
+    width: 100% !important;
 }
 
+div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"],
 div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-    flex: 1 1 0% !important;
+    flex: 1 1 0px !important;
+    width: 33.33% !important;
     min-width: 0 !important;
-    width: auto !important;
+    max-width: 33.33% !important;
 }
 
-/* بطاقة قسم مدمجة */
+/* بطاقة قسم مدمجة ومتناسبة */
 .category-card {
     background-color: #ffffff;
     border: 1.2px solid #d4af37;
     border-radius: 12px;
-    padding: 10px 4px 8px 4px;
+    padding: 8px 2px 6px 2px;
     text-align: center;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
-    margin-bottom: 6px;
-    min-height: 92px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    margin-bottom: 5px;
+    height: 82px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -60,52 +68,55 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
 }
 
 .category-icon {
-    font-size: 22px;
-    line-height: 1.2;
+    font-size: 20px;
+    line-height: 1.1;
     margin-bottom: 4px;
 }
 
 .category-name {
     color: #0b2239 !important;
-    font-size: 11.5px;
+    font-size: 11px;
     font-weight: 700;
-    line-height: 1.25;
+    line-height: 1.2;
+    white-space: nowrap;
 }
 
 .gold-divider {
-    height: 2px;
-    width: 55%;
+    height: 1.5px;
+    width: 50%;
     background: linear-gradient(90deg, transparent, #d4af37, transparent);
-    margin: 5px auto 0 auto;
+    margin: 4px auto 0 auto;
 }
 
-/* زر اختيار واضح وممتد */
+/* زر اختيار ممتد بعرض البطاقة */
+div[data-testid="stButton"],
 div.stButton > button {
     width: 100% !important;
+}
+
+div.stButton > button {
     background-color: #0b2239 !important;
     color: #f3d27a !important;
     border: 1px solid #d4af37 !important;
     border-radius: 8px !important;
-    font-size: 11px !important;
+    font-size: 10.5px !important;
     font-weight: 700 !important;
-    padding: 4px 6px !important;
-    min-height: 30px !important;
-    transition: 0.2s;
+    padding: 3px 2px !important;
+    min-height: 28px !important;
 }
 
 div.stButton > button:hover {
     background-color: #d4af37 !important;
     color: #0b2239 !important;
-    border-color: #0b2239 !important;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# 3. حفظ القسم المختار في الذاكرة المؤقتة
+# 3. حفظ القسم المختار
 if "selected_category" not in st.session_state:
     st.session_state.selected_category = "الكل"
 
-# 4. تحميل وعرض صورة البانر من المستودع
+# 4. تحميل وعرض صورة البانر كاملة
 def load_image_base64(image_path: str) -> str | None:
     p = Path(image_path)
     if not p.exists():
@@ -120,8 +131,9 @@ if img_b64:
         border-radius: 14px;
         overflow: hidden;
         border: 2px solid #d4af37;
-        box-shadow: 0 4px 14px rgba(11, 34, 57, 0.15);
-        margin-bottom: 14px;
+        box-shadow: 0 4px 12px rgba(11, 34, 57, 0.15);
+        margin-bottom: 12px;
+        width: 100%;
     ">
         <img src="data:image/jpeg;base64,{img_b64}"
              style="width: 100%; height: auto; display: block;"
@@ -129,9 +141,9 @@ if img_b64:
     </div>
     """, unsafe_allow_html=True)
 else:
-    st.warning("لم يتم العثور على banner.jpg في المجلد الرئيسي للمستودع.")
+    st.warning("لم يتم العثور على banner.jpg في المجلد الرئيسي.")
 
-# 5. بيانات البطاقات الستة (نفس ترتيب الصورة)
+# 5. بيانات البطاقات الستة
 categories = [
     {"id": "أرض للبيع", "icon": "🌱", "title": "أرض للبيع"},
     {"id": "شقق للبيع", "icon": "🏢", "title": "شقق للبيع"},
@@ -158,6 +170,6 @@ for row_start in range(0, len(categories), 3):
             if st.button("اختيار ❮", key=f"btn_{item['id']}"):
                 st.session_state.selected_category = item["id"]
 
-# 7. شريط تأكيد يوضح القسم النشط حالياً
+# 7. شريط تأكيد القسم النشط
 st.markdown("---")
 st.info(f"📌 القسم المختار حالياً: **{st.session_state.selected_category}**")
